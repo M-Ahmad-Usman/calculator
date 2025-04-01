@@ -31,12 +31,12 @@
     justify-content: space-around;
 }
 
-.previous-output, .input {
+.output, .expression {
     font-size: x-large;
     font-family: monospace;
 }
 
-.previous-output {
+.expression {
     color: rgb(90, 90, 90);
 }
 
