@@ -64,13 +64,13 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
     // Handle floating points
     else if (clickedBtn === ".") {
 
-        let indexOfOprtr = inputExpr.textContent.indexOf(calculator.oprtr);
+        let indexOfOprtr = inputExpr.textContent.search(/[+|-|*|/|%]/);
 
-        // If expression has only operand1 and it does not contain floating-point
-        if (indexOfOprtr === -1 && !(inputExpr.textContent.includes("."))) {
+        // If expression contains only one operand and it does not contain floating-point
+        if (indexOfOprtr === -1 && !inputExpr.textContent.includes(".")) {
             inputExpr.textContent += clickedBtn;
         }
-        // If expression has operand2 and it does not contain floating-point
+        // If opearnd2 does not contain floating-point
         else if (!(inputExpr.textContent.slice(indexOfOprtr + 1).includes("."))) {
             inputExpr.textContent += clickedBtn;
         }
