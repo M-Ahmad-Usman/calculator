@@ -54,7 +54,7 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
         clearCalculator();
         clearDisplay();
     }
-    
+
     let clickedBtn = e.target.textContent;
 
     if (isNumber(clickedBtn)) {
@@ -64,8 +64,14 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
     // Handle floating points
     else if (clickedBtn === ".") {
 
-        // If expression has not any floating point number
-        if (!(inputExpr.textContent.includes("."))) {
+        let indexOfOprtr = inputExpr.textContent.indexOf(calculator.oprtr);
+
+        // If expression has only operand1 and it does not contain floating-point
+        if (indexOfOprtr === -1 && !(inputExpr.textContent.includes("."))) {
+            inputExpr.textContent += clickedBtn;
+        }
+        // If expression has operand2 and it does not contain floating-point
+        else if (!(inputExpr.textContent.slice(indexOfOprtr + 1).includes("."))) {
             inputExpr.textContent += clickedBtn;
         }
     }
