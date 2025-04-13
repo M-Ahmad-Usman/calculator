@@ -18,87 +18,130 @@ function isNumber(str) {
     return !isNaN(str) && str.trim() !== "";
 }
 
+miscBtns = ["C", "CE", "x", "="];
+
+let inputExpr = document.querySelector(".output>p");
+let result = document.querySelector(".output>p");
+let expression = document.querySelector(".expression>p");
+
+function clearCalculator() {
+    calculator.oprnd1 = undefined;
+    calculator.oprnd2 = undefined;
+    calculator.oprtr = undefined;
+}
+
+function clearDisplay() {
+    inputExpr.textContent = "";
+    expression.textContent = "";
+}
+
+function isDividingByZero() {
+    return calculator.oprtr === "/" && calculator.oprnd2 === "0";
+}
+
+
+// Add click event listener leveraging event delegation
 document.querySelector(".buttons").addEventListener("click", (e) => {
+
+    // If clicked element is not button.
+    if (!(e.target instanceof HTMLButtonElement)) {
+        console.info("Clicked element is not a Button.")
+        return;
+    }
+    
+    // If some previous calculation's result was invalid
+    if (inputExpr.textContent === "Undefined") {
+        clearCalculator();
+        clearDisplay();
+    }
+    
     let clickedBtn = e.target.textContent;
-    let output = document.querySelector(".output>p");
-    let expression = document.querySelector(".expression>p");
 
-    function resetCalculator() {
-        calculator.oprnd1 = undefined;
-        calculator.oprnd2 = undefined;
-        calculator.oprtr = undefined;
-        output.textContent = "";
-        expression.textContent = "";
-    }
-
-    // If clicked button is some number
     if (isNumber(clickedBtn)) {
-        // If some previous calculation was invalid
-        if (output.textContent == "Undefined") {
-            resetCalculator();
+        inputExpr.textContent += clickedBtn;
+    }
+
+    // Handle floating points
+    else if (clickedBtn === ".") {
+
+        // If expression has not any floating point number
+        if (!(inputExpr.textContent.includes("."))) {
+            inputExpr.textContent += clickedBtn;
         }
-        output.textContent += clickedBtn;
     }
-    // If clicked button is floating point and there is no floating point in the expression
-    else if (clickedBtn === "." && !output.textContent.includes(".")) {
-        output.textContent += clickedBtn;
-    }
-    // If clicked button is some operator
+
+    // Handle Operators
     else if (calculator.validOprtrs.includes(clickedBtn)) {
-        if (output.textContent === "") {
-            alert("Invalid Format. Please enter an operand!");
-            return;
-        }
-        else if (calculator.oprtr) {
-            alert("Invalid Format. Please enter an operand!");
+
+        // If operand1 is not defined
+        if (inputExpr.textContent === "") {
+            console.error("Operand1 is not defined");
             return;
         }
 
-        calculator.oprnd1 = Number(output.textContent);
-        calculator.oprtr = clickedBtn;
-        output.textContent = "";
-        expression.textContent = calculator.oprnd1 + calculator.oprtr;
+        // Replace operator if expression already contains some operator
+        if (calculator.oprtr) {
+
+            // Take index of operator in input expression
+            let indexOfOprtr = inputExpr.textContent.indexOf(calculator.oprtr);
+
+            // Replace previous operator with new operator
+            inputExpr.textContent = inputExpr.textContent.slice(0, indexOfOprtr) + clickedBtn + inputExpr.textContent.slice(indexOfOprtr + 1);
+
+            calculator.oprtr = clickedBtn;
+            return;
+        }
+        // Add operator in expression and in calculator
+        else {
+            inputExpr.textContent += clickedBtn;
+            calculator.oprtr = clickedBtn;
+            return;
+        }
     }
+
     // Handle miscellaneous buttons
-    else {
+    else if (miscBtns.includes(clickedBtn)) {
         switch (clickedBtn) {
             case "C":
-                resetCalculator();
+                clearCalculator();
+                clearDisplay();
                 break;
 
             case "CE":
-                output.textContent = "";
+                inputExpr.textContent = "";
                 break;
 
+            // Clear last character
             case "x":
-                output.textContent = output.textContent.slice(0, -1);
+                inputExpr.textContent = inputExpr.textContent.slice(0, -1);
                 break;
 
             case "=":
-                if (!calculator.oprnd1 || !calculator.oprtr || output.textContent === "") {
-                    alert("Invalid format.");
-                    break;
+                // Set data in calculator
+                let indexOfOprtr = inputExpr.textContent.indexOf(calculator.oprtr);
+                calculator.oprnd1 = inputExpr.textContent.slice(0, indexOfOprtr);
+                calculator.oprnd2 = inputExpr.textContent.slice(indexOfOprtr + 1);
+
+                // If operator and operands are defined.
+                if (calculator.oprtr && calculator.oprnd1 && calculator.oprnd2) {
+
+                    if (isDividingByZero()) {
+                        inputExpr.textContent = "Undefined";
+                        break;
+                    }
+
+                    calculator.oprnd1 = Number(calculator.oprnd1);
+                    calculator.oprnd2 = Number(calculator.oprnd2);
+
+                    expression.textContent = inputExpr.textContent;
+                    inputExpr.textContent = calculator[calculator.oprtr]();
+
+                    // Clear calculator's data
+                    clearCalculator();
                 }
-
-                // Handle division by zero
-                else if (output.textContent === "0" && calculator.oprtr === "/") {
-                    output.textContent = "Undefined";
-                    break;
+                else {
+                    alert("Invalid Expression");
                 }
-                
-                // Calculate expression and display result
-                calculator.oprnd2 = Number(output.textContent);
-                output.textContent = calculator[calculator.oprtr]();
-                expression.textContent = calculator.oprnd1 + calculator.oprtr + calculator.oprnd2;
-
-                // Allow further calculations
-                calculator.oprnd1 = Number(output.textContent);
-                calculator.oprtr = undefined;
-                calculator.oprnd2 = undefined;
-                break;
-
-            // If Some element other than the button is clicked in .buttons div
-            default:
                 break;
         }
     }
