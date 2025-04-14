@@ -64,7 +64,8 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
     // Handle floating points
     else if (clickedBtn === ".") {
 
-        let indexOfOprtr = inputExpr.textContent.search(/[+|-|*|/|%]/);
+        // Avoid - to be taken as range with \- in regexp.
+        let indexOfOprtr = inputExpr.textContent.search(/[+\-*/%]/);
 
         // If expression contains only one operand and it does not contain floating-point
         if (indexOfOprtr === -1 && !inputExpr.textContent.includes(".")) {
