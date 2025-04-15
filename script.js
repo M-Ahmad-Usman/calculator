@@ -36,7 +36,7 @@ function clearDisplay() {
 }
 
 function isDividingByZero() {
-    return calculator.oprtr === "/" && calculator.oprnd2 === "0";
+    return calculator.oprtr === "/" && calculator.oprnd2 === 0;
 }
 
 
@@ -124,31 +124,39 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
                 break;
 
             case "=":
-                // Set data in calculator
-                let indexOfOprtr = inputExpr.textContent.indexOf(calculator.oprtr);
-                calculator.oprnd1 = inputExpr.textContent.slice(0, indexOfOprtr);
-                calculator.oprnd2 = inputExpr.textContent.slice(indexOfOprtr + 1);
+                /*
+                Regular Expression for expression validation
+                    \d+: [0-9] 1 or more times
+                    \.?: Optional floating point 0 or 1 time
+                    \d*: Optional [0-9] after floating point 0 or more times
+                    [+\-/*%]: Exactly 1 valid operator (+, -, *, /, or %)
+                */
+                const regex = /\d+\.?\d*[+\-/*%]\d+\.?\d*/g;
+                let isValid = regex.test(inputExpr.textContent);
 
-                // If operator and operands are defined.
-                if (calculator.oprtr && calculator.oprnd1 && calculator.oprnd2) {
-
-                    if (isDividingByZero()) {
-                        inputExpr.textContent = "Undefined";
-                        break;
-                    }
-
-                    calculator.oprnd1 = Number(calculator.oprnd1);
-                    calculator.oprnd2 = Number(calculator.oprnd2);
-
-                    expression.textContent = inputExpr.textContent;
-                    inputExpr.textContent = calculator[calculator.oprtr]();
-
-                    // Clear calculator's data
-                    clearCalculator();
-                }
-                else {
+                if (!isValid) {
                     alert("Invalid Expression");
+                    break;
                 }
+
+                // Setting data in calculator
+                calculator.oprtr = inputExpr.textContent.match(/[+\-/*%]/).toString();
+                
+                let oprnds = inputExpr.textContent.split(calculator.oprtr);
+                calculator.oprnd1 = Number(oprnds[0]);
+                calculator.oprnd2 = Number(oprnds[1]);
+
+                if (isDividingByZero()) {
+                    inputExpr.textContent = "Undefined";
+                    break;
+                }
+
+                // Calculate and display result
+                expression.textContent = inputExpr.textContent;
+                inputExpr.textContent = calculator[calculator.oprtr]();
+
+                // Clear calculator's data
+                clearCalculator();
                 break;
         }
     }
