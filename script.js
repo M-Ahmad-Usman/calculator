@@ -48,7 +48,7 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
         console.info("Clicked element is not a Button.")
         return;
     }
-    
+
     // If some previous calculation's result was invalid
     if (inputExpr.textContent === "Undefined") {
         clearCalculator();
@@ -87,22 +87,18 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
         }
 
         // Replace operator if expression already contains some operator
-        if (calculator.oprtr) {
+        if (/[+\-/*%]/.test(inputExpr.textContent)) {
 
             // Take index of operator in input expression
-            let indexOfOprtr = inputExpr.textContent.indexOf(calculator.oprtr);
+            let indexOfOprtr = inputExpr.textContent.search(/[+\-/*%]/);
 
             // Replace previous operator with new operator
-            inputExpr.textContent = inputExpr.textContent.slice(0, indexOfOprtr) + clickedBtn + inputExpr.textContent.slice(indexOfOprtr + 1);
-
-            calculator.oprtr = clickedBtn;
-            return;
+            inputExpr.textContent = inputExpr.textContent.slice(0, indexOfOprtr) + 
+            clickedBtn + inputExpr.textContent.slice(indexOfOprtr + 1);
         }
-        // Add operator in expression and in calculator
+        // Append operator in expression
         else {
             inputExpr.textContent += clickedBtn;
-            calculator.oprtr = clickedBtn;
-            return;
         }
     }
 
@@ -141,7 +137,7 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
 
                 // Setting data in calculator
                 calculator.oprtr = inputExpr.textContent.match(/[+\-/*%]/).toString();
-                
+
                 let oprnds = inputExpr.textContent.split(calculator.oprtr);
                 calculator.oprnd1 = Number(oprnds[0]);
                 calculator.oprnd2 = Number(oprnds[1]);
