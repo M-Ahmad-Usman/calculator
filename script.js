@@ -149,7 +149,7 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
 
                 // Calculate and display result
                 expression.textContent = inputExpr.textContent;
-                inputExpr.textContent = calculator[calculator.oprtr]();
+                result.textContent = calculator[calculator.oprtr]();
 
                 // Clear calculator's data
                 clearCalculator();
