@@ -76,6 +76,8 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
     // Handle floating points
     else if (clickedBtn === ".") {
 
+        // Check whether the expression contains operator or not. If operator is not present
+        // then search() will return -1.
         let indexOfOprtr = inputExpr.textContent.search(calculator.validOprtrs);
 
         // If expression contains only one operand and it does not contain floating-point
