@@ -29,8 +29,11 @@ function isNumber(str) {
     return !isNaN(str) && str.trim() !== "";
 }
 
+// Display input taken from user on calculator
 let inputExpr = document.querySelector(".output>p");
+// Display result of calculation on same paragraph (which takes input)
 let result = document.querySelector(".output>p");
+// Show the expression to which the result is displayed
 let expression = document.querySelector(".expression>p");
 
 function clearCalculator() {
