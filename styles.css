@@ -5,7 +5,7 @@
 }
 
 .calculator {
-    width: 70vw;
+    width: 300px;
     margin: 5px auto;
     border-radius: 10px;
     display: flex;  
@@ -50,24 +50,4 @@
 
 .button {
     border-radius: 100%;
-}
-
-/* For medium screens */
-@media screen and (min-width: 580px) {
-    .calculator {
-        width: 50vw;
-    }
-}
-
-/* For large screens */
-@media screen and (min-width: 830px) {
-    .calculator {
-        width: 35vw;
-    }
-}
-
-@media screen and (min-width: 1220px) {
-    .calculator {
-        width: 25vw;
-    }
 }
