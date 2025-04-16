@@ -4,7 +4,18 @@ let calculator = {
     oprnd2: undefined,
     oprtr: undefined,
 
-    validOprtrs: ["+", "-", "*", "/", "%"],
+    // Avoid - to be taken as range with \- in regexp.
+    validOprtrs: /[+\-*/%]/,
+    /*
+        Regular Expression for expression validation
+        \d+: [0-9] 1 or more times
+        \.?: Optional floating point 0 or 1 time
+        \d*: Optional [0-9] after floating point 0 or more times
+        [+\-/*%]: Exactly 1 valid operator (+, -, *, /, or %)
+    */
+    validExpr: /\d+\.?\d*[+\-/*%]\d+\.?\d*/,
+    // Miscellaneous buttons
+    miscBtns: /(C|CE|x|=)/,
 
     // Define operators
     "+": function () { return this.oprnd1 + this.oprnd2 },
@@ -17,8 +28,6 @@ let calculator = {
 function isNumber(str) {
     return !isNaN(str) && str.trim() !== "";
 }
-
-miscBtns = ["C", "CE", "x", "="];
 
 let inputExpr = document.querySelector(".output>p");
 let result = document.querySelector(".output>p");
@@ -64,8 +73,7 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
     // Handle floating points
     else if (clickedBtn === ".") {
 
-        // Avoid - to be taken as range with \- in regexp.
-        let indexOfOprtr = inputExpr.textContent.search(/[+\-*/%]/);
+        let indexOfOprtr = inputExpr.textContent.search(calculator.validOprtrs);
 
         // If expression contains only one operand and it does not contain floating-point
         if (indexOfOprtr === -1 && !inputExpr.textContent.includes(".")) {
@@ -78,7 +86,7 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
     }
 
     // Handle Operators
-    else if (calculator.validOprtrs.includes(clickedBtn)) {
+    else if (calculator.validOprtrs.test(clickedBtn)) {
 
         // If operand1 is not defined
         if (inputExpr.textContent === "") {
@@ -87,13 +95,13 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
         }
 
         // Replace operator if expression already contains some operator
-        if (/[+\-/*%]/.test(inputExpr.textContent)) {
+        if (calculator.validOprtrs.test(inputExpr.textContent)) {
 
             // Take index of operator in input expression
-            let indexOfOprtr = inputExpr.textContent.search(/[+\-/*%]/);
+            let indexOfOprtr = inputExpr.textContent.search(calculator.validOprtrs);
 
             // Replace previous operator with new operator
-            inputExpr.textContent = inputExpr.textContent.slice(0, indexOfOprtr) + 
+            inputExpr.textContent = inputExpr.textContent.slice(0, indexOfOprtr) +
             clickedBtn + inputExpr.textContent.slice(indexOfOprtr + 1);
         }
         // Append operator in expression
@@ -103,7 +111,7 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
     }
 
     // Handle miscellaneous buttons
-    else if (miscBtns.includes(clickedBtn)) {
+    else if (calculator.miscBtns.test(clickedBtn)) {
         switch (clickedBtn) {
             case "C":
                 clearCalculator();
@@ -120,15 +128,7 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
                 break;
 
             case "=":
-                /*
-                Regular Expression for expression validation
-                    \d+: [0-9] 1 or more times
-                    \.?: Optional floating point 0 or 1 time
-                    \d*: Optional [0-9] after floating point 0 or more times
-                    [+\-/*%]: Exactly 1 valid operator (+, -, *, /, or %)
-                */
-                const regex = /\d+\.?\d*[+\-/*%]\d+\.?\d*/g;
-                let isValid = regex.test(inputExpr.textContent);
+                let isValid = calculator.validExpr.test(inputExpr.textContent);
 
                 if (!isValid) {
                     alert("Invalid Expression");
@@ -136,7 +136,7 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
                 }
 
                 // Setting data in calculator
-                calculator.oprtr = inputExpr.textContent.match(/[+\-/*%]/).toString();
+                calculator.oprtr = inputExpr.textContent.match(calculator.validOprtrs).toString();
 
                 let oprnds = inputExpr.textContent.split(calculator.oprtr);
                 calculator.oprnd1 = Number(oprnds[0]);
