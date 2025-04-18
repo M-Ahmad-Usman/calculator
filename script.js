@@ -29,12 +29,21 @@ function isNumber(str) {
     return !isNaN(str) && str.trim() !== "";
 }
 
-// Display input taken from user on calculator
-let inputExpr = document.querySelector(".output>p");
-// Display result of calculation on same paragraph (which takes input)
-let result = document.querySelector(".output>p");
-// Show the expression to which the result is displayed
-let expression = document.querySelector(".expression>p");
+// Round numbers only which have decimal numbers of length more than 10
+function round(value, maxDecimals = 10) {
+    const [real, decimal=""] = value.toString().split(".");
+
+    if (decimal.length <= maxDecimals) return value;
+
+    return Number(Math.round(value + 'e' + maxDecimals) + 'e-' + maxDecimals);
+    /* e is used for scientific notation
+        value + 'e' + 3   →  "1.23456789e3"   → string
+        Math.round(...)   →  Math.round(1234.56789) → 1235
+        + 'e-' + 3        →  "1235e-3"        → string again
+        Number(...)       →  1.235            → final result (rounded)
+    */
+}
+
 
 function clearCalculator() {
     calculator.oprnd1 = undefined;
@@ -51,6 +60,12 @@ function isDividingByZero() {
     return calculator.oprtr === "/" && calculator.oprnd2 === 0;
 }
 
+// Display input taken from user on calculator
+let inputExpr = document.querySelector(".output>p");
+// Display result of calculation on same paragraph (which takes input)
+let result = document.querySelector(".output>p");
+// Show the expression to which the result is displayed
+let expression = document.querySelector(".expression>p");
 
 // Add click event listener leveraging event delegation
 document.querySelector(".buttons").addEventListener("click", (e) => {
@@ -154,7 +169,7 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
 
                 // Calculate and display result
                 expression.textContent = inputExpr.textContent;
-                result.textContent = calculator[calculator.oprtr]();
+                result.textContent = round(calculator[calculator.oprtr]());
 
                 // Clear calculator's data
                 clearCalculator();
