@@ -1,5 +1,8 @@
 import Stack from "./stack.js"
 
+// "\" is used before "minus" sign to avoid it being considered as range.
+const validOperators = /[+\-*/%]/;
+
 // Returns precedence and associativity of given operator. 
 // Higher the Number higher the precedence
 function getOperatorPrecedence(operator) {
@@ -38,13 +41,27 @@ function getOpeningBracket(closingBracket) {
     }
 }
 
+function calculate(operand1, operand2, operator) {
+    switch (operator) {
+        case "+":
+            return operand1 + operand2;
+        case "-":
+            return operand1 - operand2;
+        case "*":
+            return operand1 * operand2;
+        case "/":
+            return operand1 / operand2;
+        case "%":
+            return operand1 % operand2;
+        default:
+            throw new Error("Invalid operator");
+    }
+}
+
 
 function infixToPostfix(expression) {
     const stack = new Stack();
     let postfixExpression = "";
-
-    // "\" is used before "minus" sign to avoid it being considered as range.
-    const validOperators = /[+\-*/%]/;
 
     expression = expression.trim();
     const length = expression.length;
@@ -128,4 +145,34 @@ function infixToPostfix(expression) {
     }
 
     return postfixExpression;
+}
+
+function evaluateExpression(postfixExpression) {
+    const stack = new Stack();
+
+    for (const symbol of postfixExpression) {
+
+        // Case 1:
+        // Handle Numbers
+        if (/\d/.test(symbol)) {
+            stack.push(+symbol)
+        }
+
+        // Case 2:
+        else if (validOperators.test(symbol)) {
+            let operand2 = stack.pop();
+            let operand1 = stack.pop();
+            let result = calculate(operand1, operand2, symbol);
+            stack.push(result);
+        }
+    }
+
+    let result = stack.pop();
+
+    if (!stack.isEmpty()) {
+        throw new Error("Invalid Postfix Expression");
+    }
+    else {
+        return result;
+    }
 }
