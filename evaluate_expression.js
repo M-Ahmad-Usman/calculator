@@ -1,6 +1,7 @@
 import Stack from "./stack.js"
 
-const validOperators = /[-+*/%]/;
+// Binary & Unary Operators
+const validOperators = /^(?:[-+*/%]|u-|u+)$/;
 
 // Returns precedence and associativity of given operator. 
 // Higher the Number higher the precedence
@@ -13,16 +14,37 @@ function getOperatorPrecedence(operator) {
         case "/":
         case "%":
             return 2;
+        case "u-":
+        case "u+":
+            return 3;
         default:
             throw new Error("Invalid Operator.");
     };
 }
 
-// Creates and return an Operator object with two properties.
+function getOperatorAssociativity(operator) {
+    switch (operator) {
+        case "+":
+        case "-":
+        case "*":
+        case "/":
+        case "%":
+            return "LR";
+        case "u-":
+        case "u+":
+            return "RL";
+        default:
+            throw new Error("Invalid Operator.");
+    }
+}
+
+// Creates and return an Operator Object.
 function makeOperator(operator) {
     return {
         "operator": operator,
         "precedence": getOperatorPrecedence(operator),
+        "type": operator.includes("u") ? "unary" : "binary",
+        "associativity": getOperatorAssociativity(operator),
     }
 }
 
@@ -40,20 +62,44 @@ function getOpeningBracket(closingBracket) {
     }
 }
 
-function calculate(operand1, operand2, operator) {
-    switch (operator) {
-        case "+":
-            return operand1 + operand2;
-        case "-":
-            return operand1 - operand2;
-        case "*":
-            return operand1 * operand2;
-        case "/":
-            return operand1 / operand2;
-        case "%":
-            return operand1 % operand2;
-        default:
-            throw new Error("Invalid operator");
+function calculate(operation) {
+
+    let operationType = operation.type;
+    let operator = operation.operator;
+
+    // Unary Operation
+    if (operationType == "unary") {
+        let operand = operation.operand;
+
+        switch (operator) {
+            case "u-":
+                return -operand;
+            case "u+":
+                return operand;
+            default:
+                throw new Error("Invalid Unary Operator");
+        }
+    }
+
+    // Binary Operation
+    else {
+        let operand1 = operation.operand1;
+        let operand2 = operation.operand2;
+
+        switch (operation.operator) {
+            case "+":
+                return operand1 + operand2;
+            case "-":
+                return operand1 - operand2;
+            case "*":
+                return operand1 * operand2;
+            case "/":
+                return operand1 / operand2;
+            case "%":
+                return operand1 % operand2;
+            default:
+                throw new Error("Invalid operator");
+        }
     }
 }
 
@@ -88,8 +134,13 @@ function infixToPostfix(expression) {
     let postfixExpression = "";
 
     const length = expression.length;
-
     let i = 0;
+
+    // Handle First Unary Operator (if any)
+    if (expression[0] == "+" || expression[0] == "-") {
+        stack.push(makeOperator("u" + expression[0]));
+        i++;
+    }
 
     while (i < length) {
         const char = expression[i]
@@ -117,10 +168,22 @@ function infixToPostfix(expression) {
             i++;
         }
 
-        // Case 3:
-        // Handle Operators
+        // Case 3: Handle Operators
         else if (validOperators.test(char)) {
-            const currentOperator = makeOperator(char);
+            // An operator is unary if
+            // 1. It is "+" or "-".
+            // 2. It comes at the start of string (already handled in the start) or 
+            // after some other operator or Opening bracket
+
+            let currentOperator;
+            // Unary Operator
+            if ((char == "+" || char == "-") && (validOperators.test(expression[i - 1]) || /[\(\[\{]/.test(expression[i - 1]))) {
+                currentOperator = makeOperator("u" + char);
+            }
+            // Binary Operator
+            else {
+                currentOperator = makeOperator(char);
+            }
 
             if (stack.isEmpty()) {
                 stack.push(currentOperator);
@@ -143,9 +206,17 @@ function infixToPostfix(expression) {
                 // Here we do not increment i because the current operator is not handled yet.
                 // Now the new top can be anything. So we have to check all cases in handle operators again.
             }
+            // If precedence of both operators equal
             else {
-                postfixExpression += stack.pop().operator;
-                stack.push(currentOperator);
+                // Left To Right Associativity Rule
+                if (currentOperator.associativity == "RL") {
+                    stack.push(currentOperator);
+                }
+                // Left To Right Associativity Rule
+                else {
+                    postfixExpression += stack.pop().operator;
+                    stack.push(currentOperator);
+                }
                 i++;
             }
         }
@@ -184,20 +255,20 @@ export default function evaluateInfixExpression(infixExpression) {
     // Validate & Sanitize Input
     // 1. Remove whitespaces from expression
     infixExpression = infixExpression.replace(/\s+/g, "");
-    
+
     // 2. Check Balanced Paranthesis
     if (!checkBalancedParanthesis(infixExpression)) {
         throw new Error("Invalid input expression with Unbalanced braces.")
     }
 
     // 3. Validate the structure of Input Infix Expression
-    const validInfixExpression = /^\d+(\.\d+)?([-+*/%]\d+(\.\d+)?)*$/;
+    const validInfixExpression = /^[+-]*\d+(\.\d+)?([+\-*/%][+-]*\d+(\.\d+)?)*$/;
     // Before testing remove brackets of all types as Balanced Paranthesis is already been checked. As
     // validInfixExpression doesn't supports brackets of any kind.
     if (!validInfixExpression.test(infixExpression.replace(/[\(\)\[\]\{\}]/g, ""))) {
         throw new Error("Given expression isn't a valid Infix Expression.")
     }
-    
+
     const stack = new Stack();
     const postfixExpression = infixToPostfix(infixExpression);
 
@@ -221,18 +292,40 @@ export default function evaluateInfixExpression(infixExpression) {
             if (postfixExpression[i] == ",") i++;
         }
 
-        // Case 2:
-        // Handle Operators
-        else if (validOperators.test(postfixExpression[i])) {
-            let operand2 = stack.pop();
-            let operand1 = stack.pop();
-            let operator = postfixExpression[i];
+        // Case 2: Handle Operators
+        // 2.1 Handle Unary Operators
+        else if (postfixExpression[i] == "u") {
+            let unaryOperator = postfixExpression[i] + postfixExpression[i + 1];
+            let operand = stack.pop();
 
-             if (operand2 == 0 && operator == "/") {
+            let calculationObject = {
+                "type": "unary",
+                "operator": unaryOperator,
+                "operand": operand,
+            };
+
+            let result = calculate(calculationObject);
+            stack.push(result);
+            i += 2;
+        }
+        // 2.2 Handle Binary Operators
+        else if (validOperators.test(postfixExpression[i])) {
+            const binaryOperator = postfixExpression[i];
+            const operand2 = stack.pop();
+            const operand1 = stack.pop();
+
+            if (operand2 == 0 && binaryOperator == "/") {
                 throw new Error("Division by Zero is not allowed.");
             }
 
-            let result = calculate(operand1, operand2, operator);
+            const calculationObject = {
+                "type": "binary",
+                "operator": binaryOperator,
+                "operand1": operand1,
+                "operand2": operand2,
+            };
+
+            let result = calculate(calculationObject);
             stack.push(result);
             i++;
         }
@@ -240,7 +333,7 @@ export default function evaluateInfixExpression(infixExpression) {
         // Case 3:
         // Handle Undefined Characters
         else {
-            throw new Error ("Invalid Input Expression.")
+            throw new Error("Invalid Input Expression.")
         }
     }
 
