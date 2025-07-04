@@ -74,7 +74,16 @@ function infixToPostfix(expression) {
         // Case 1:
         // Handle Numeric Digits
         if (/\d/.test(char)) {
+
             postfixExpression += char;
+
+            // To keep track of operands which have more than one digits, use ","
+            // If the next symbol is an operator then all previous symbols (untill ",") are operand1 of next operator.
+            // 20+5 will be 20,5+
+            // 20+5-3 will be 20,5,+3-
+            if (i + 1 < length && validOperators.test(expression[i + 1])) {
+                postfixExpression += ",";
+            }
             i++;
         }
 
@@ -150,20 +159,34 @@ function infixToPostfix(expression) {
 function evaluateExpression(postfixExpression) {
     const stack = new Stack();
 
-    for (const symbol of postfixExpression) {
+    let i = 0;
+    const size = postfixExpression.length;
+
+    while (i < size) {
 
         // Case 1:
-        // Handle Numbers
-        if (/\d/.test(symbol)) {
-            stack.push(+symbol)
+        // Hande Numbers (operands)
+        if (/\d/.test(postfixExpression[i])) {
+
+            let operand = "";
+            // Get Operand untill "," or some operator
+            while (/\d/.test(postfixExpression[i])) {
+                operand += postfixExpression[i];
+                i++;
+            }
+            stack.push(+operand);
+
+            if (postfixExpression[i] == ",") i++;
         }
 
         // Case 2:
-        else if (validOperators.test(symbol)) {
+        // Handle Operators
+        else if (validOperators.test(postfixExpression[i])) {
             let operand2 = stack.pop();
             let operand1 = stack.pop();
-            let result = calculate(operand1, operand2, symbol);
+            let result = calculate(operand1, operand2, postfixExpression[i]);
             stack.push(result);
+            i++;
         }
     }
 
