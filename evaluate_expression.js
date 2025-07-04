@@ -186,6 +186,10 @@ function evaluateExpression(postfixExpression) {
             let operand1 = stack.pop();
             let operator = postfixExpression[i];
 
+             if (operand2 == 0 && operator == "/") {
+                throw new Error("Division by Zero is not allowed.");
+            }
+
             let result = calculate(operand1, operand2, operator);
             stack.push(result);
             i++;
