@@ -1,7 +1,6 @@
 import Stack from "./stack.js"
 
-// "\" is used before "minus" sign to avoid it being considered as range.
-const validOperators = /[+\-*/%]/;
+const validOperators = /[-+*/%]/;
 
 // Returns precedence and associativity of given operator. 
 // Higher the Number higher the precedence
@@ -192,7 +191,7 @@ export default function evaluateInfixExpression(infixExpression) {
     }
 
     // 3. Validate the structure of Input Infix Expression
-    const validInfixExpression = /^\d+(\.\d+)?([+\-*/%]\d+(\.\d+)?)*$/;
+    const validInfixExpression = /^\d+(\.\d+)?([-+*/%]\d+(\.\d+)?)*$/;
     // Before testing remove brackets of all types as Balanced Paranthesis is already been checked. As
     // validInfixExpression doesn't supports brackets of any kind.
     if (!validInfixExpression.test(infixExpression.replace(/[\(\)\[\]\{\}]/g, ""))) {
