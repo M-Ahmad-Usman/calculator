@@ -85,10 +85,6 @@ function checkBalancedParanthesis(expression) {
 
 function infixToPostfix(expression) {
 
-    if (!checkBalancedParanthesis(expression)) {
-        throw new Error("Invalid input expression with Unbalanced braces.")
-    }
-
     const stack = new Stack();
     let postfixExpression = "";
 
@@ -186,10 +182,15 @@ function infixToPostfix(expression) {
 
 // Main Function
 export default function evaluateInfixExpression(infixExpression) {
-
-    // Remove whitespaces from expression
+    // Validate & Sanitize Input
+    // 1. Remove whitespaces from expression
     infixExpression = infixExpression.replace(/\s+/g, "");
-
+    
+    // 2. Check Balanced Paranthesis
+    if (!checkBalancedParanthesis(infixExpression)) {
+        throw new Error("Invalid input expression with Unbalanced braces.")
+    }
+    
     const stack = new Stack();
     const postfixExpression = infixToPostfix(infixExpression);
 
@@ -228,11 +229,17 @@ export default function evaluateInfixExpression(infixExpression) {
             stack.push(result);
             i++;
         }
+
+        // Case 3:
+        // Handle Undefined Characters
+        else {
+            throw new Error ("Invalid Input Expression.")
+        }
     }
 
     let result = stack.pop();
 
-    if (!stack.isEmpty()) {
+    if (!stack.isEmpty() || isNaN(result)) {
         throw new Error("Invalid Postfix Expression");
     }
     else {
