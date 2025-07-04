@@ -102,7 +102,7 @@ function infixToPostfix(expression) {
 
         // Case 1:
         // Handle Numeric Digits
-        if (/\d/.test(char)) {
+        if (/\d/.test(char) || char == ".") {
 
             postfixExpression += char;
 
@@ -201,7 +201,7 @@ export default function evaluateInfixExpression(infixExpression) {
 
             let operand = "";
             // Get Operand untill "," or some operator
-            while (/\d/.test(postfixExpression[i])) {
+            while (/\d/.test(postfixExpression[i]) || postfixExpression[i] == ".") {
                 operand += postfixExpression[i];
                 i++;
             }
