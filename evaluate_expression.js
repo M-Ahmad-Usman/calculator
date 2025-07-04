@@ -185,8 +185,9 @@ function infixToPostfix(expression) {
     return postfixExpression;
 }
 
-function evaluateExpression(postfixExpression) {
+function evaluateInfixExpression(infixExpression) {
     const stack = new Stack();
+    const postfixExpression = infixToPostfix(infixExpression);
 
     let i = 0;
     const size = postfixExpression.length;
