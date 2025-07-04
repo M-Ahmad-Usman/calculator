@@ -190,6 +190,14 @@ export default function evaluateInfixExpression(infixExpression) {
     if (!checkBalancedParanthesis(infixExpression)) {
         throw new Error("Invalid input expression with Unbalanced braces.")
     }
+
+    // 3. Validate the structure of Input Infix Expression
+    const validInfixExpression = /^\d+(\.\d+)?([+\-*/%]\d+(\.\d+)?)*$/;
+    // Before testing remove brackets of all types as Balanced Paranthesis is already been checked. As
+    // validInfixExpression doesn't supports brackets of any kind.
+    if (!validInfixExpression.test(infixExpression.replace(/[\(\)\[\]\{\}]/g, ""))) {
+        throw new Error("Given expression isn't a valid Infix Expression.")
+    }
     
     const stack = new Stack();
     const postfixExpression = infixToPostfix(infixExpression);
