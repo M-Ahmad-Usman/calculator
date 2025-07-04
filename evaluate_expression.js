@@ -92,7 +92,6 @@ function infixToPostfix(expression) {
     const stack = new Stack();
     let postfixExpression = "";
 
-    expression = expression.trim();
     const length = expression.length;
 
     let i = 0;
@@ -187,6 +186,10 @@ function infixToPostfix(expression) {
 
 // Main Function
 export default function evaluateInfixExpression(infixExpression) {
+
+    // Remove whitespaces from expression
+    infixExpression = infixExpression.replace(/\s+/g, "");
+
     const stack = new Stack();
     const postfixExpression = infixToPostfix(infixExpression);
 
