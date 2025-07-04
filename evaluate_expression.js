@@ -58,8 +58,37 @@ function calculate(operand1, operand2, operator) {
     }
 }
 
+function checkBalancedParanthesis(expression) {
+    const stack = new Stack();
+
+    for (const char of expression) {
+        switch (char) {
+            case "(":
+            case "[":
+            case "{":
+                stack.push(char);
+                break;
+            case ")":
+                if (stack.isEmpty() || stack.pop() !== "(") return false;
+                break;
+            case "]":
+                if (stack.isEmpty() || stack.pop() !== "[") return false;
+                break;
+            case "}":
+                if (stack.isEmpty() || stack.pop() !== "{") return false;
+                break;
+        }
+    }
+
+    return stack.isEmpty();
+}
 
 function infixToPostfix(expression) {
+
+    if (!checkBalancedParanthesis(expression)) {
+        throw new Error("Invalid input expression with Unbalanced braces.")
+    }
+
     const stack = new Stack();
     let postfixExpression = "";
 
