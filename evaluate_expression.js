@@ -184,7 +184,9 @@ function evaluateExpression(postfixExpression) {
         else if (validOperators.test(postfixExpression[i])) {
             let operand2 = stack.pop();
             let operand1 = stack.pop();
-            let result = calculate(operand1, operand2, postfixExpression[i]);
+            let operator = postfixExpression[i];
+
+            let result = calculate(operand1, operand2, operator);
             stack.push(result);
             i++;
         }
