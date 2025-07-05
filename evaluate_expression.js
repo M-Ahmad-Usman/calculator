@@ -1,6 +1,8 @@
 import Stack from "./stack.js"
 
 // Binary & Unary Operators
+// Binary Operators: +, -, *, /, %
+// Unary Operators: u+, u-
 const validOperators = /(?:[-+*/%]|u-|u+)/;
 
 // Returns precedence and associativity of given operator. 
@@ -56,12 +58,13 @@ function getOpeningBracket(closingBracket) {
         case "]":
             return "["
         case "}":
-            return "{"
+            return "{";
         default:
             throw new Error("Invalid Bracket Symbol");
     }
 }
 
+// Takes operation object and performs calculations based on operation's type and operator.
 function calculate(operation) {
 
     let operationType = operation.type;
@@ -103,7 +106,7 @@ function calculate(operation) {
     }
 }
 
-function checkBalancedParanthesis(expression) {
+function checkBalancedBrackets(expression) {
     const stack = new Stack();
 
     for (const char of expression) {
@@ -142,6 +145,7 @@ function infixToPostfix(expression) {
         i++;
     }
 
+    // Parse expression
     while (i < length) {
         const char = expression[i]
 
@@ -172,7 +176,7 @@ function infixToPostfix(expression) {
         else if (validOperators.test(char)) {
             // An operator is unary if
             // 1. It is "+" or "-".
-            // 2. It comes at the start of string (already handled in the start) or 
+            // 2. It comes at the start of string (already handled in the start of function) or 
             // after some other operator or Opening bracket
 
             let currentOperator;
@@ -184,6 +188,8 @@ function infixToPostfix(expression) {
             else {
                 currentOperator = makeOperator(char);
             }
+
+            // Now handle the operator (unary or Binary)
 
             if (stack.isEmpty()) {
                 stack.push(currentOperator);
@@ -241,7 +247,7 @@ function infixToPostfix(expression) {
         }
     }
 
-    // Pop all elements from stack
+    // Pop all elements from stack and append to the final output.
     while (!stack.isEmpty()) {
         let topOfStack = stack.pop();
         postfixExpression += topOfStack.operator;
@@ -257,16 +263,17 @@ export default function evaluateInfixExpression(infixExpression) {
     infixExpression = infixExpression.replace(/\s+/g, "");
 
     // 2. Check Balanced Paranthesis
-    if (!checkBalancedParanthesis(infixExpression)) {
-        throw new Error("Invalid input expression with Unbalanced braces.")
+    if (!checkBalancedBrackets(infixExpression)) {
+        throw new Error("Invalid input expression with Unbalanced brackets.");
     }
 
     // 3. Validate the structure of Input Infix Expression
-    const validInfixExpression = /^[+-]*\d+(\.\d+)?([+\-*/%][+-]*\d+(\.\d+)?)*$/;
-    // Before testing remove brackets of all types as Balanced Paranthesis is already been checked. As
-    // validInfixExpression doesn't supports brackets of any kind.
+    const validInfixExpression = /^[+-]*\d+(\.\d+)?([-+*/%][+-]*\d+(\.\d+)?)*$/;
+
+    // Remove all brackets from the infix expression as validInfixExpression doesn't supports brackets and
+    // brackets have already been checked in step 2.
     if (!validInfixExpression.test(infixExpression.replace(/[\(\)\[\]\{\}]/g, ""))) {
-        throw new Error("Given expression isn't a valid Infix Expression.")
+        throw new Error("Given expression's structure isn't valid for an infix expression.");
     }
 
     const stack = new Stack();
@@ -282,7 +289,8 @@ export default function evaluateInfixExpression(infixExpression) {
         if (/\d/.test(postfixExpression[i])) {
 
             let operand = "";
-            // Get Operand untill "," or some operator
+            // Collect operand's digits untill characters are digits or a "."
+            // The loop will terminal when "," (indicating the end of operand) or some operator arrives.
             while (/\d/.test(postfixExpression[i]) || postfixExpression[i] == ".") {
                 operand += postfixExpression[i];
                 i++;
@@ -314,6 +322,7 @@ export default function evaluateInfixExpression(infixExpression) {
             const operand2 = stack.pop();
             const operand1 = stack.pop();
 
+            // Prevent division by zero error.
             if (operand2 == 0 && binaryOperator == "/") {
                 throw new Error("Division by Zero is not allowed.");
             }
@@ -333,14 +342,14 @@ export default function evaluateInfixExpression(infixExpression) {
         // Case 3:
         // Handle Undefined Characters
         else {
-            throw new Error("Invalid Input Expression.")
+            throw new Error("Postfix Expression contains undefined characters")
         }
     }
 
     let result = stack.pop();
 
     if (!stack.isEmpty() || isNaN(result)) {
-        throw new Error("Invalid Postfix Expression");
+        throw new Error("Invalid Expression.");
     }
     else {
         return result;
