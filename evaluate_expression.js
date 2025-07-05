@@ -1,7 +1,7 @@
 import Stack from "./stack.js"
 
 // Binary & Unary Operators
-const validOperators = /^(?:[-+*/%]|u-|u+)$/;
+const validOperators = /(?:[-+*/%]|u-|u+)/;
 
 // Returns precedence and associativity of given operator. 
 // Higher the Number higher the precedence
