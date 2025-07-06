@@ -34,12 +34,10 @@
 
 .input-output {
     height: 60%;
-    /* border: 2px solid red; */
 }
 
 .expression {
     height: 40%;
-    /* border: 2px solid red; */
     text-align: right;
 }
 
@@ -48,6 +46,7 @@
     font-size: 1.2rem;
     font-family: monospace;
     font-weight: 500;
+    color: rgb(66, 66, 66);
 }
 
 .input-output input {
