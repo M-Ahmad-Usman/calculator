@@ -4,6 +4,7 @@ import { validOperators } from "./evaluate_expression.js"
 const previousExpression = document.querySelector(".expression>p");
 const inputOutput = document.querySelector(".input-output>input");
 const validInputs = /[-+*/%\.\d()[\]{}]/;
+const arrowKeys = ["ArrowRight", "ArrowLeft", "ArrowRight", "ArrowLeft"];
 
 let isError = false;
 let isFirstCalculation = true;
@@ -121,9 +122,15 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
 
 // Handle KeyBoard input on site
 document.addEventListener("keydown", (e) => {
-    // Prevent the default behavior of input element if input element was focused on key down
-    
-    if (e.target instanceof HTMLInputElement) {
+
+    // If arrow keys are pressed on input element then allow default behavior to move the cursor.
+    if (e.target instanceof HTMLInputElement && arrowKeys.includes(e.key)) {
+        return;
+    }
+
+    // Input element handles input content on its own.
+    // Prevent this behavior as the input is handled by handleKeyBoardInput.
+    else if (e.target instanceof HTMLInputElement) {
         e.preventDefault();
     }
 
