@@ -9,12 +9,16 @@ const arrowKeys = ["ArrowRight", "ArrowLeft", "ArrowRight", "ArrowLeft"];
 let isError = false;
 let isFirstCalculation = true;
 
+function resetCalculator() {
+    inputOutput.value = "";
+    previousExpression.textContent = "";
+}
+
 function handleInput(input) {
 
     // Reset display if there was some error before
     if (isError) {
-        inputOutput.value = "";
-        previousExpression.textContent = "";
+        resetCalculator();
         isError = false;
     }
 
@@ -22,8 +26,7 @@ function handleInput(input) {
     // Erase previous values if anything other than the operator is given after a calculation
     // If an operator is given then append it on the result
     if (!isFirstCalculation && !validOperators.test(input)) {
-        inputOutput.value = "";
-        previousExpression.textContent = "";
+        resetCalculator();
     }
     
     // Always true
@@ -37,8 +40,7 @@ function handleInput(input) {
 
     switch (input) {
         case "C":
-            inputOutput.value = "";
-            previousExpression.textContent = "";
+            resetCalculator();
             break;
 
         case "x":
