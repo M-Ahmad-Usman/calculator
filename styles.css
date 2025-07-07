@@ -79,6 +79,8 @@ body {
 
 .button {
     border-radius: 100%;
+    font-size: 1rem;
+    font-weight: 500;
 }
 
 .oprtr {
