@@ -5,6 +5,7 @@ const previousExpression = document.querySelector(".expression>p");
 const inputOutput = document.querySelector(".input-output>input");
 const validInputs = /[-+*/%\.\d()[\]{}]/;
 const arrowKeys = ["ArrowRight", "ArrowLeft", "ArrowRight", "ArrowLeft"];
+const functionKeys = /F\d{1,2}/;
 
 let isError = false;
 let isFirstCalculation = true;
@@ -91,6 +92,11 @@ function handleInput(input) {
 function handleKeyBoardInput(value) {
 // Keyboard input isn't directly passed to handleInput because
 // handleInput allows values which are valid only when passed by buttons like "x".
+
+    // Ignore function keys explicity.
+    if (functionKeys.test(value)) {
+        return;
+    }
 
     if (validInputs.test(value)) {
         handleInput(value);
