@@ -6,6 +6,7 @@ const inputOutput = document.querySelector(".input-output>input");
 const validInputs = /[-+*/%\.\d()[\]{}]/;
 
 let isError = false;
+let isFirstCalculation = true;
 
 function handleInput(input) {
 
@@ -16,6 +17,18 @@ function handleInput(input) {
         isError = false;
     }
 
+    
+    // Erase previous values if anything other than the operator is given after a calculation
+    // If an operator is given then append it on the result
+    if (!isFirstCalculation && !validOperators.test(input)) {
+        inputOutput.value = "";
+        previousExpression.textContent = "";
+    }
+    
+    // Always true
+    // Only "=" will make it false on successful calculation
+    isFirstCalculation = true;
+    
     if (validInputs.test(input)) {
         inputOutput.value += input;
         return;
@@ -64,6 +77,9 @@ function handleInput(input) {
 
             previousExpression.textContent = inputOutput.value;
             inputOutput.value = result;
+
+            // Now a calculation is completed
+            isFirstCalculation = false;
 
             break;
     }
