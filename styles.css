@@ -4,16 +4,21 @@
     box-sizing: border-box;
 }
 
+body {
+    display: grid;
+    place-content: center;
+    height: 100vh;
+}
+
 .calculator {
     width: 320px;
-    margin: 5px auto;
     border-radius: 10px;
     display: flex;  
     flex-direction: column;
     gap: 10px;
     padding: 10px;
-    border: 5px solid black;
-    box-shadow: 2px 2px 6px black;
+    border: 3px solid black;
+    box-shadow: 2px 2px 6px hsl(0, 0%, 50%);
 }
 
 .calculator h1 {
@@ -28,17 +33,36 @@
 
     display: flex;
     flex-direction: column;
-    align-items: end;
-    justify-content: space-around;
+    gap: 5px;
 }
 
-.output, .expression {
-    font-size: x-large;
-    font-family: monospace;
+
+.input-output {
+    height: 60%;
 }
 
 .expression {
-    color: rgb(90, 90, 90);
+    height: 40%;
+    text-align: right;
+}
+
+.expression > p {
+    text-align: right;
+    font-size: 1.2rem;
+    font-family: monospace;
+    font-weight: 500;
+    color: rgb(66, 66, 66);
+}
+
+.input-output input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: rgb(190, 190, 190);
+    text-align: right;
+    outline: none;
+    font-size: 1.6rem;
+    font-family: monospace;
 }
 
 .buttons {
@@ -46,7 +70,7 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     row-gap: 2px;
-    column-gap: 2px;
+    column-gap: 2px;    
 }
 
 .button {

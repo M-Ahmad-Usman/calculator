@@ -1,179 +1,146 @@
-// Calculator object to perform basic arithmetic operations
-let calculator = {
-    oprnd1: undefined,
-    oprnd2: undefined,
-    oprtr: undefined,
+import evaluateInfixExpression from "./evaluate_expression.js"
+import { validOperators } from "./evaluate_expression.js"
 
-    // Avoid - to be taken as range with \- in regexp.
-    validOprtrs: /[+\-*/%]/,
-    /*
-        Regular Expression for expression validation
-        \d+: [0-9] 1 or more times
-        \.?: Optional floating point 0 or 1 time
-        \d*: Optional [0-9] after floating point 0 or more times
-        [+\-/*%]: Exactly 1 valid operator (+, -, *, /, or %)
-    */
-    validExpr: /\d+\.?\d*[+\-/*%]\d+\.?\d*/,
-    // Miscellaneous buttons
-    miscBtns: /(C|CE|x|=)/,
+const previousExpression = document.querySelector(".expression>p");
+const inputOutput = document.querySelector(".input-output>input");
+const validInputs = /[-+*/%\.\d()[\]{}]/;
+const arrowKeys = ["ArrowRight", "ArrowLeft", "ArrowRight", "ArrowLeft"];
+const functionKeys = /F\d{1,2}/;
 
-    // Define operators
-    "+": function () { return this.oprnd1 + this.oprnd2 },
-    "-": function () { return this.oprnd1 - this.oprnd2 },
-    "*": function () { return this.oprnd1 * this.oprnd2 },
-    "/": function () { return this.oprnd1 / this.oprnd2 },
-    "%": function () { return this.oprnd1 % this.oprnd2 },
-};
+let isError = false;
+let isFirstCalculation = true;
 
-function isNumber(str) {
-    return !isNaN(str) && str.trim() !== "";
+function resetCalculator() {
+    inputOutput.value = "";
+    previousExpression.textContent = "";
 }
 
-// Round numbers only which have decimal numbers of length more than 10
-function round(value, maxDecimals = 10) {
-    const [real, decimal=""] = value.toString().split(".");
+function handleInput(input) {
 
-    if (decimal.length <= maxDecimals) return value;
+    // Reset display if there was some error before
+    if (isError) {
+        resetCalculator();
+        isError = false;
+    }
 
-    return Number(Math.round(value + 'e' + maxDecimals) + 'e-' + maxDecimals);
-    /* e is used for scientific notation
-        value + 'e' + 3   →  "1.23456789e3"   → string
-        Math.round(...)   →  Math.round(1234.56789) → 1235
-        + 'e-' + 3        →  "1235e-3"        → string again
-        Number(...)       →  1.235            → final result (rounded)
-    */
-}
-
-
-function clearCalculator() {
-    calculator.oprnd1 = undefined;
-    calculator.oprnd2 = undefined;
-    calculator.oprtr = undefined;
-}
-
-function clearDisplay() {
-    inputExpr.textContent = "";
-    expression.textContent = "";
-}
-
-function isDividingByZero() {
-    return calculator.oprtr === "/" && calculator.oprnd2 === 0;
-}
-
-// Display input taken from user on calculator
-let inputExpr = document.querySelector(".output>p");
-// Display result of calculation on same paragraph (which takes input)
-let result = document.querySelector(".output>p");
-// Show the expression to which the result is displayed
-let expression = document.querySelector(".expression>p");
-
-// Add click event listener leveraging event delegation
-document.querySelector(".buttons").addEventListener("click", (e) => {
-
-    // If clicked element is not button.
-    if (!(e.target instanceof HTMLButtonElement)) {
-        console.info("Clicked element is not a Button.")
+    
+    // Erase previous values if anything other than the operator is given after a calculation
+    // If an operator is given then append it on the result
+    if (!isFirstCalculation && !validOperators.test(input)) {
+        resetCalculator();
+    }
+    
+    // Always true
+    // Only "=" will make it false on successful calculation
+    isFirstCalculation = true;
+    
+    if (validInputs.test(input)) {
+        inputOutput.value += input;
         return;
     }
 
-    // If some previous calculation's result was invalid
-    if (inputExpr.textContent === "Undefined") {
-        clearCalculator();
-        clearDisplay();
+    switch (input) {
+        case "C":
+            resetCalculator();
+            break;
+
+        case "x":
+            inputOutput.value = inputOutput.value.slice(0, -1);
+            break;
+
+        case "CE":
+            let expression = inputOutput.value;
+
+            // Check if operator exists in the expression
+            if (validOperators.test(expression)) {
+                const indexOfLastOperator = expression.split("").findLastIndex(char => validOperators.test(char));
+
+                // Remove string after the last operator in the expression.
+                inputOutput.value = expression.slice(0, indexOfLastOperator + 1);
+            }
+            // If no operator is found
+            else {
+                // Remove the whole expression
+                inputOutput.value = "";
+            }
+
+            break;
+
+        case "=":
+            let result;
+
+            try {
+                result = evaluateInfixExpression(inputOutput.value);
+            }
+            catch (error) {
+                previousExpression.textContent = error.message;
+                inputOutput.value = "";
+                isError = true;
+                return;
+            }
+
+            previousExpression.textContent = inputOutput.value;
+            inputOutput.value = result;
+
+            // Now a calculation is completed
+            isFirstCalculation = false;
+
+            break;
+    }
+}
+
+function handleKeyBoardInput(value) {
+// Keyboard input isn't directly passed to handleInput because
+// handleInput allows values which are valid only when passed by buttons like "x".
+
+    // Ignore function keys explicity.
+    if (functionKeys.test(value)) {
+        return;
     }
 
-    let clickedBtn = e.target.textContent;
-
-    if (isNumber(clickedBtn)) {
-        inputExpr.textContent += clickedBtn;
+    if (validInputs.test(value)) {
+        handleInput(value);
+        return;
     }
 
-    // Handle floating points
-    else if (clickedBtn === ".") {
+    switch (value) {
+        case "Backspace":
+            handleInput("x");
+            break;
+        case "Escape":
+            handleInput("C");
+            break;
+        case "Enter":
+            handleInput("=");
+            break;
+        case "Delete":
+            handleInput("CE");
+            break;
+    }
+}
 
-        // Check whether the expression contains operator or not. If operator is not present
-        // then search() will return -1.
-        let indexOfOprtr = inputExpr.textContent.search(calculator.validOprtrs);
-
-        // If expression contains only one operand and it does not contain floating-point
-        if (indexOfOprtr === -1 && !inputExpr.textContent.includes(".")) {
-            inputExpr.textContent += clickedBtn;
-        }
-        // If opearnd2 does not contain floating-point
-        else if (!(inputExpr.textContent.slice(indexOfOprtr + 1).includes("."))) {
-            inputExpr.textContent += clickedBtn;
-        }
+// Hande Button input
+document.querySelector(".buttons").addEventListener("click", (e) => {
+    if (!(e.target instanceof HTMLButtonElement)) {
+        return;
     }
 
-    // Handle Operators
-    else if (calculator.validOprtrs.test(clickedBtn)) {
+    handleInput(e.target.textContent)
+});
 
-        // If operand1 is not defined
-        if (inputExpr.textContent === "") {
-            console.error("Operand1 is not defined");
-            return;
-        }
+// Handle KeyBoard input on site
+document.addEventListener("keydown", (e) => {
 
-        // Replace operator if expression already contains some operator
-        if (calculator.validOprtrs.test(inputExpr.textContent)) {
-
-            // Take index of operator in input expression
-            let indexOfOprtr = inputExpr.textContent.search(calculator.validOprtrs);
-
-            // Replace previous operator with new operator
-            inputExpr.textContent = inputExpr.textContent.slice(0, indexOfOprtr) +
-            clickedBtn + inputExpr.textContent.slice(indexOfOprtr + 1);
-        }
-        // Append operator in expression
-        else {
-            inputExpr.textContent += clickedBtn;
-        }
+    // If arrow keys are pressed on input element then allow default behavior to move the cursor.
+    if (e.target instanceof HTMLInputElement && arrowKeys.includes(e.key)) {
+        return;
     }
 
-    // Handle miscellaneous buttons
-    else if (calculator.miscBtns.test(clickedBtn)) {
-        switch (clickedBtn) {
-            case "C":
-                clearCalculator();
-                clearDisplay();
-                break;
-
-            case "CE":
-                inputExpr.textContent = "";
-                break;
-
-            // Clear last character
-            case "x":
-                inputExpr.textContent = inputExpr.textContent.slice(0, -1);
-                break;
-
-            case "=":
-                let isValid = calculator.validExpr.test(inputExpr.textContent);
-
-                if (!isValid) {
-                    alert("Invalid Expression");
-                    break;
-                }
-
-                // Setting data in calculator
-                calculator.oprtr = inputExpr.textContent.match(calculator.validOprtrs).toString();
-
-                let oprnds = inputExpr.textContent.split(calculator.oprtr);
-                calculator.oprnd1 = Number(oprnds[0]);
-                calculator.oprnd2 = Number(oprnds[1]);
-
-                if (isDividingByZero()) {
-                    inputExpr.textContent = "Undefined";
-                    break;
-                }
-
-                // Calculate and display result
-                expression.textContent = inputExpr.textContent;
-                result.textContent = round(calculator[calculator.oprtr]());
-
-                // Clear calculator's data
-                clearCalculator();
-                break;
-        }
+    // Input element handles input content on its own.
+    // Prevent this behavior as the input is handled by handleKeyBoardInput.
+    else if (e.target instanceof HTMLInputElement) {
+        e.preventDefault();
     }
+
+    handleKeyBoardInput(e.key);
 });
