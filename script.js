@@ -59,5 +59,41 @@ function handleInput(input) {
     }
 }
 
+function handleKeyBoardInput(value) {
+// Keyboard input isn't directly passed to handleInput because
+// handleInput allows values which are valid only when passed by buttons like "x".
+
+    if (validInputs.test(value)) {
+        inputOutput.value += value;
+        return;
+    }
+
+    switch (value) {
+        case "Backspace":
+            handleInput("x");
+            break;
+        case "Escape":
+            handleInput("C");
+            break;
+        case "Enter":
+            handleInput("=");
+            break;
+        case "Delete":
+            handleInput("CE");
+            break;
+    }
+}
+
 // Hande Button input
 document.querySelector(".buttons").addEventListener("click", (e) => handleInput(e.target.textContent));
+
+// Handle KeyBoard input on site
+document.addEventListener("keydown", (e) => {
+    // Prevent the default behavior of input element if input element was focused on key down
+    
+    if (e.target instanceof HTMLInputElement) {
+        e.preventDefault();
+    }
+    
+    handleKeyBoardInput(e.key);
+});
