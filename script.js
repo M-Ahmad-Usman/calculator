@@ -74,7 +74,7 @@ function handleKeyBoardInput(value) {
 // handleInput allows values which are valid only when passed by buttons like "x".
 
     if (validInputs.test(value)) {
-        inputOutput.value += value;
+        handleInput(value);
         return;
     }
 
