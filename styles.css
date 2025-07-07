@@ -41,6 +41,9 @@ body {
     gap: 5px;
 }
 
+.error-Message {
+    font-size: 1.2rem;
+}
 
 .input-output {
     height: 60%;
@@ -49,17 +52,13 @@ body {
 .expression {
     height: 40%;
     text-align: right;
-}
-
-.expression > p {
-    text-align: right;
     font-size: 1.2rem;
     font-family: monospace;
     font-weight: 500;
     color: rgb(66, 66, 66);
 }
 
-.input-output input {
+.input-output{
     width: 100%;
     height: 100%;
     border: none;
@@ -93,4 +92,8 @@ body {
 
 .misc {
     background-color: var(--misc-btn-color);
+}
+
+.hide {
+    display: none;
 }
