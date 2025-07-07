@@ -5,7 +5,16 @@ const previousExpression = document.querySelector(".expression>p");
 const inputOutput = document.querySelector(".input-output>input");
 const validInputs = /[-+*/%\.\d()[\]{}]/;
 
+let isError = false;
+
 function handleInput(input) {
+
+    // Reset display if there was some error before
+    if (isError) {
+        inputOutput.value = "";
+        previousExpression.textContent = "";
+        isError = false;
+    }
 
     if (validInputs.test(input)) {
         inputOutput.value += input;
@@ -49,6 +58,7 @@ function handleInput(input) {
             catch (error) {
                 previousExpression.textContent = error.message;
                 inputOutput.value = "";
+                isError = true;
                 return;
             }
 
@@ -94,6 +104,6 @@ document.addEventListener("keydown", (e) => {
     if (e.target instanceof HTMLInputElement) {
         e.preventDefault();
     }
-    
+
     handleKeyBoardInput(e.key);
 });
