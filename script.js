@@ -111,7 +111,13 @@ function handleKeyBoardInput(value) {
 }
 
 // Hande Button input
-document.querySelector(".buttons").addEventListener("click", (e) => handleInput(e.target.textContent));
+document.querySelector(".buttons").addEventListener("click", (e) => {
+    if (!(e.target instanceof HTMLButtonElement)) {
+        return;
+    }
+
+    handleInput(e.target.textContent)
+});
 
 // Handle KeyBoard input on site
 document.addEventListener("keydown", (e) => {
