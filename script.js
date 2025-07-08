@@ -1,8 +1,9 @@
 import evaluateInfixExpression from "./evaluate_expression.js"
 import { validOperators } from "./evaluate_expression.js"
 
-const previousExpression = document.querySelector(".expression>p");
-const inputOutput = document.querySelector(".input-output>input");
+const errorMessage = document.querySelector(".error-message");
+const previousExpression = document.querySelector(".expression");
+const inputOutput = document.querySelector(".input-output");
 const validInputs = /[-+*/%\.\d()[\]{}]/;
 const arrowKeys = ["ArrowRight", "ArrowLeft", "ArrowRight", "ArrowLeft"];
 const functionKeys = /F\d{1,2}/;
@@ -15,11 +16,28 @@ function resetCalculator() {
     previousExpression.textContent = "";
 }
 
+function showError(error) {
+    previousExpression.classList.toggle("hide");
+    inputOutput.classList.toggle("hide");
+    errorMessage.classList.toggle("hide");
+
+    errorMessage.textContent = error;
+}
+
+function removeError() {
+    errorMessage.textContent = "";
+
+    previousExpression.classList.toggle("hide");
+    inputOutput.classList.toggle("hide");
+    errorMessage.classList.toggle("hide");
+}
+
 function handleInput(input) {
 
     // Reset display if there was some error before
     if (isError) {
         resetCalculator();
+        removeError();
         isError = false;
     }
 
@@ -73,8 +91,7 @@ function handleInput(input) {
                 result = evaluateInfixExpression(inputOutput.value);
             }
             catch (error) {
-                previousExpression.textContent = error.message;
-                inputOutput.value = "";
+                showError(error.message);
                 isError = true;
                 return;
             }
