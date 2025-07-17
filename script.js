@@ -5,7 +5,7 @@ const errorMessage = document.querySelector(".error-message");
 const previousExpression = document.querySelector(".expression");
 const inputOutput = document.querySelector(".input-output");
 const validInputs = /[-+*/%\.\d()[\]{}]/;
-const arrowKeys = ["ArrowRight", "ArrowLeft", "ArrowRight", "ArrowLeft"];
+const arrowKeys = /(ArrowRight)|(ArrowLeft)|(ArrowUp)|(ArrowDown)/;
 const functionKeys = /F\d{1,2}/;
 
 let isError = false;
@@ -173,7 +173,7 @@ document.querySelector(".buttons").addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
 
     // If arrow keys are pressed on input element then allow default behavior to move the cursor.
-    if (e.target instanceof HTMLInputElement && arrowKeys.includes(e.key)) {
+    if (e.target instanceof HTMLInputElement && arrowKeys.test(e.key)) {
         return;
     }
 
