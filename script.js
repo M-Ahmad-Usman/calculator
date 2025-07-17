@@ -42,9 +42,10 @@ function handleInput(input) {
     }
 
     
-    // Erase previous values if anything other than the operator is given after a calculation
-    // If an operator is given then append it on the result
-    if (!isFirstCalculation && !validOperators.test(input)) {
+    // If next symbol is an operator then append it on the result of previous calculation
+    // Else if next symbol is "=" then show the previous result
+    // Else remove everything
+    if (!isFirstCalculation && !validOperators.test(input) && input != "=") {
         resetCalculator();
     }
     
