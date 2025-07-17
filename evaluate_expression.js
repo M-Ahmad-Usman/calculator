@@ -65,7 +65,7 @@ function getOpeningBracket(closingBracket) {
 }
 
 // Takes operation object and performs calculations based on operation's type and operator.
-function calculate(operation) {
+function executeOperation(operation) {
 
     let operationType = operation.type;
     let operator = operation.operator;
@@ -311,13 +311,13 @@ export default function evaluateInfixExpression(infixExpression) {
             let unaryOperator = postfixExpression[i] + postfixExpression[i + 1];
             let operand = stack.pop();
 
-            let calculationObject = {
+            const operation = {
                 "type": "unary",
                 "operator": unaryOperator,
                 "operand": operand,
             };
 
-            let result = calculate(calculationObject);
+            let result = executeOperation(operation);
             stack.push(result);
             i += 2;
         }
@@ -332,14 +332,14 @@ export default function evaluateInfixExpression(infixExpression) {
                 throw new Error("Division by Zero is not allowed.");
             }
 
-            const calculationObject = {
+            const operation = {
                 "type": "binary",
                 "operator": binaryOperator,
                 "operand1": operand1,
                 "operand2": operand2,
             };
 
-            let result = calculate(calculationObject);
+            let result = executeOperation(operation);
             stack.push(result);
             i++;
         }
