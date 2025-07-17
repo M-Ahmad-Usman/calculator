@@ -53,7 +53,15 @@ function handleInput(input) {
     isFirstCalculation = true;
     
     if (validInputs.test(input)) {
-        inputOutput.value += input;
+        // Get the position of text selected by cursor.
+        // If no text is selected then start === end
+        const start = inputOutput.selectionStart;
+        const end = inputOutput.selectionEnd;
+        const currentExpression = inputOutput.value;
+
+        // Append the input at the current position of cursor
+        // if some text is selected then replace that text with input
+        inputOutput.value = currentExpression.slice(0, start) + input + currentExpression.slice(end);
         return;
     }
 
@@ -63,7 +71,23 @@ function handleInput(input) {
             break;
 
         case "x":
-            inputOutput.value = inputOutput.value.slice(0, -1);
+            // selectionEnd is used to remove the last character from selected text.
+            // If nothing is selected then remove the last character behind the cursor
+            const cursorPosition = inputOutput.selectionEnd;
+            const currentExpression = inputOutput.value;
+
+            // Do nothing if cursor is at start
+            if (cursorPosition == 0) break;
+
+            // Remove the previous character if cursor is after 1st character
+            if (cursorPosition == 1) inputOutput.value = currentExpression.slice(1);
+            // Remove the last character if cursor is at last
+            else if (cursorPosition == currentExpression.length)
+                inputOutput.value = currentExpression.slice(0, cursorPosition - 1);
+            // If cursor is somewhere between remove the character behind the cursor.
+            else
+                inputOutput.value = currentExpression.slice(0, cursorPosition - 1) + currentExpression.slice(cursorPosition);
+
             break;
 
         case "CE":
