@@ -107,6 +107,11 @@ function calculate(operation) {
 }
 
 function checkBalancedBrackets(expression) {
+
+    if(!/[\[\]\(\)\{\}]/.test(expression)) {
+        return true;
+    }
+
     const stack = new Stack();
 
     for (const char of expression) {
