@@ -328,7 +328,7 @@ export default function evaluateInfixExpression(infixExpression) {
             const operand1 = stack.pop();
 
             // Prevent division by zero error.
-            if (operand2 == 0 && binaryOperator == "/") {
+            if (operand2 == 0 && (binaryOperator == "/" || binaryOperator == "%")) {
                 throw new Error("Division by Zero is not allowed.");
             }
 
