@@ -38,10 +38,10 @@ The calculator can handle deeply nested expressions with multiple operator types
 
 ```javascript
 // Deeply nested brackets with mixed operators
-((15 + 3) * 2 - (8 / 4)) / (3 + 1)  →  8
+((50 - 30) * 12 - (25 / 2) * (8 / 4)) / (3 + 1)  →  53.75
 
 // Multiple unary operators
--(-5 + 3) * +(2 - 4)  →  4
+-(-5 + 3) * +(2 - 4)  →  -4
 
 // Complex nested expressions
 {[(10 + 5) * 3] - [20 / (2 + 2)]} * 2  →  80
